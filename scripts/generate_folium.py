@@ -42,7 +42,7 @@ class BindColormap(MacroElement):
 def generate_folium_map(
     data_dir: Path,
     output_dir: Path,
-    output_name: str = 'ww_phenology_ch.html',
+    output_name: str = 'index.html',
     selected_years: list[int] = [2016]
 ) -> None:
     """
@@ -197,6 +197,6 @@ def generate_folium_map(
 
 if __name__ == '__main__':
     data_dir = Path('data')
-    output_dir = Path('map')
+    output_dir = Path('.')
     output_dir.mkdir(exist_ok=True)
     generate_folium_map(data_dir, output_dir)
