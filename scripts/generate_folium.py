@@ -39,31 +39,8 @@ class BindColormap(MacroElement):
         """)  # noqa
 
 
-def generate_folium_map(
-    data_dir: Path,
-    output_dir: Path,
-    output_name: str = 'index.html',
-    selected_years: list[int] = [2016]
-) -> None:
-    """
-    Generate a folium map of the data in the data directory to
-    visualize the results of the phenology model in a HTML file.
-
-    :param data_dir: directory with the data (geojson files).
-    :param output_dir: directory for writing outputs to.
-    :param output_name: name of the output file.
-    :param selected_years: list of years to select.
-    """
-    # create map
-    m = folium.Map(
-        location=[47, 7.5],
-        zoom_start=8,
-        tiles='cartodbpositron',
-        attr='© Terensis (2023). Basemap data © CartoDB'
-    )
-
-    # Injecting custom css through branca macro elements and template, give it a name
-    textbox_css = """
+def get_textbox_css():
+    return """
     {% macro html(this, kwargs) %}
     <!doctype html>
     <html lang="de">
@@ -128,6 +105,33 @@ def generate_folium_map(
     </style>
     {% endmacro %}
     """
+
+
+def generate_folium_map(
+    data_dir: Path,
+    output_dir: Path,
+    output_name: str = 'index.html',
+    selected_years: list[int] = [2016]
+) -> None:
+    """
+    Generate a folium map of the data in the data directory to
+    visualize the results of the phenology model in a HTML file.
+
+    :param data_dir: directory with the data (geojson files).
+    :param output_dir: directory for writing outputs to.
+    :param output_name: name of the output file.
+    :param selected_years: list of years to select.
+    """
+    # create map
+    m = folium.Map(
+        location=[47, 7.5],
+        zoom_start=8,
+        tiles='cartodbpositron',
+        attr='© Terensis (2023). Basemap data © CartoDB'
+    )
+
+    # Injecting custom css through branca macro elements and template, give it a name
+    textbox_css = get_textbox_css()
     # configuring the custom style (you can call it whatever you want)
     my_custom_style = MacroElement()
     my_custom_style._template = Template(textbox_css)
