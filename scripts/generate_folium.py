@@ -130,7 +130,7 @@ def generate_folium_map(
     data_dir: Path,
     output_dir: Path,
     output_name: str = 'index.html',
-    selected_years: list[int] = [2016]
+    selected_years: list[int] = [2016, 2017, 2018, 2019, 2020]
 ) -> None:
     """
     Generate a folium map of the data in the data directory to
@@ -157,7 +157,7 @@ def generate_folium_map(
     m.get_root().add_child(my_custom_style)
     
     # add data
-    for fpath in data_dir.glob('*.geojson'):
+    for idx, fpath in enumerate(data_dir.glob('*.geojson')):
         year = int(fpath.stem.split('_')[-1].split('-')[-1])
         if year not in selected_years:
             continue
@@ -166,6 +166,7 @@ def generate_folium_map(
         gdf_indexed = gdf.set_index('id')
 
         # emergence date
+        show = idx == 0
         emergence = folium.Choropleth(
             geo_data=gdf,
             name=f'{year} Auflaufen',
@@ -176,8 +177,9 @@ def generate_folium_map(
             fill_opacity=0.7,
             line_opacity=0.2,
             lazy=True,
-            legend_name='Beginn des Auflaufens (Tag des Jahres)'
-        ).add_to(m)
+            legend_name=f'Beginn des Auflaufens {year} (Tag des Jahres)',
+            show=show
+        )
         # add a tooltip to display the emergence date as date
         for s in emergence.geojson.data['features']:
             s['properties']['Auflaufen (BBCH 09)'] = \
@@ -186,6 +188,16 @@ def generate_folium_map(
         # and finally adding a tooltip/hover to the choropleth's geojson
         folium.GeoJsonTooltip(['Auflaufen (BBCH 09)']).add_to(
             emergence.geojson)
+
+        # handle colormap
+        for key in emergence._children:
+            if key.startswith('color_map'):
+                branca_color_map = emergence._children[key]
+                del(emergence._children[key])
+
+        m.add_child(emergence)
+        m.add_child(branca_color_map)
+        m.add_child(BindColormap(emergence, branca_color_map))       
 
         # heading date
         heading = folium.Choropleth(
@@ -198,9 +210,9 @@ def generate_folium_map(
             fill_opacity=0.7,
             line_opacity=0.2,
             lazy=True,
-            legend_name='Ende des Ährenschiebens (Tag des Jahres)',
-            visible=False
-        ).add_to(m)
+            legend_name=f'Ende des Ährenschiebens {year} (Tag des Jahres)',
+            show=False
+        )
         # add a tooltip to display the heading date as date
         for s in heading.geojson.data['features']:
             s['properties']['Ende des Aehrenschieben (BBCH 59)'] = \
@@ -211,9 +223,18 @@ def generate_folium_map(
         folium.GeoJsonTooltip(['Ende des Aehrenschieben (BBCH 59)']).add_to(
             heading.geojson)
 
-    # add layer control
-    folium.LayerControl().add_to(m)
+        # handle colormap
+        for key in heading._children:
+            if key.startswith('color_map'):
+                branca_color_map = heading._children[key]
+                del(heading._children[key])
+
+        m.add_child(heading)
+        m.add_child(branca_color_map)
+        m.add_child(BindColormap(heading, branca_color_map))
+
     # save map
+    m.add_child(folium.map.LayerControl(collapsed=False))
     m.save(output_dir.joinpath(output_name))
 
 
