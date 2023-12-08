@@ -158,10 +158,8 @@ def generate_folium_map(
     
     # add data
     idx = 0
-    for fpath in data_dir.glob('*.geojson'):
-        year = int(fpath.stem.split('_')[-1].split('-')[-1])
-        if year not in selected_years:
-            continue
+    for year in selected_years:
+        fpath = data_dir.joinpath(f'results_ww_gs_{year-1}-{year}.geojson')
 
         gdf = gpd.read_file(fpath)
         gdf_indexed = gdf.set_index('id')
