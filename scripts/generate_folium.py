@@ -8,7 +8,7 @@ Author: Lukas Graf (lukas.graf@terensis.io)
 import folium
 import geopandas as gpd
 
-from branca.element import Template, MacroElement
+from branca.element import Element, MacroElement, Template
 from pathlib import Path
 
 
@@ -72,10 +72,23 @@ def get_textbox_css():
         <div id="textbox" class="textbox">
         <div class="textbox-title">Winterweizen Phänologie</div>
         <div class="textbox-content">
-            <p>Die Karte zeigt das Auflaufdatum (BBCH 09) und das Datum des Ende des Ährenschiebens (BBCH 59) in Winterweizen.</p>
-            <p>Die Phänologiedaten beruhen auf einer Simulation mit hochaufgelösten Wetterdaten von MeteoSchweiz.</p>
+            <pre>
+            Die Karte zeigt das Auflaufdatum (BBCH 09) und das Datum
+            des Ende des Ährenschiebens (BBCH 59) in Winterweizen.
+            Die Phänologiedaten beruhen auf einer Simulation mit
+            hochaufgelösten Wetterdaten von MeteoSchweiz.</pre>
         </div>
         </div>
+        <div style="position: fixed; 
+                top: 10px; 
+                left: 50px; 
+                width: 250px; 
+                height: 80px; 
+                z-index:9999; 
+                font-size:14px;
+                text-align: center;">
+        <img src="https://github.com/terensis/ww_phenology_demo/raw/main/resources/terensis_logo.png" alt="Terensis" style="width: 250px; height: auto;">
+    </div>
     </body>
     </html>
 
@@ -90,7 +103,7 @@ def get_textbox_css():
         -webkit-backdrop-filter: blur( 4px );
         border: 4px solid rgba( 90, 114, 71, 0.2 );
         padding: 10px;
-        font-size:14px;
+        font-size: 14px;
         right: 20px;
         bottom: 20px;
         color: #5a7247;
@@ -101,6 +114,12 @@ def get_textbox_css():
         margin-bottom: 5px;
         font-weight: bold;
         font-size: 22px;
+        }
+    .textbox .textbox-content {
+        color: black;
+        text-align: left;
+        margin-bottom: 5px;
+        font-size: 14px;
         }
     </style>
     {% endmacro %}
@@ -130,14 +149,13 @@ def generate_folium_map(
         attr='© Terensis (2023). Basemap data © CartoDB'
     )
 
-    # Injecting custom css through branca macro elements and template, give it a name
+    # Add custom Terensis style
     textbox_css = get_textbox_css()
-    # configuring the custom style (you can call it whatever you want)
     my_custom_style = MacroElement()
     my_custom_style._template = Template(textbox_css)
-    # Adding my_custom_style to the map
+    # Adding to the map
     m.get_root().add_child(my_custom_style)
-
+    
     # add data
     for fpath in data_dir.glob('*.geojson'):
         year = int(fpath.stem.split('_')[-1].split('-')[-1])
