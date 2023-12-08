@@ -130,7 +130,7 @@ def generate_folium_map(
     data_dir: Path,
     output_dir: Path,
     output_name: str = 'index.html',
-    selected_years: list[int] = [2016, 2017, 2018, 2019, 2020]
+    selected_years: list[int] = [2018, 2019, 2020]
 ) -> None:
     """
     Generate a folium map of the data in the data directory to
@@ -157,7 +157,8 @@ def generate_folium_map(
     m.get_root().add_child(my_custom_style)
     
     # add data
-    for idx, fpath in enumerate(data_dir.glob('*.geojson')):
+    idx = 0
+    for fpath in data_dir.glob('*.geojson'):
         year = int(fpath.stem.split('_')[-1].split('-')[-1])
         if year not in selected_years:
             continue
@@ -232,6 +233,8 @@ def generate_folium_map(
         m.add_child(heading)
         m.add_child(branca_color_map)
         m.add_child(BindColormap(heading, branca_color_map))
+
+        idx += 1
 
     # save map
     m.add_child(folium.map.LayerControl(collapsed=False))
